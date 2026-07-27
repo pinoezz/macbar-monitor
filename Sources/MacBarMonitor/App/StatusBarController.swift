@@ -2,6 +2,10 @@ import AppKit
 import Combine
 import SwiftUI
 
+extension Notification.Name {
+    static let dismissPopover = Notification.Name("dismissPopover")
+}
+
 @MainActor
 final class StatusBarController: NSObject {
     private let statusItem: NSStatusItem
@@ -20,6 +24,7 @@ final class StatusBarController: NSObject {
         super.init()
         setupStatusItem()
         observeStore()
+        observeDismissNotification()
     }
 
     func startMonitoring() {
@@ -48,6 +53,16 @@ final class StatusBarController: NSObject {
             }
             .store(in: &cancellables)
         updateTitle()
+    }
+
+    private func observeDismissNotification() {
+        NotificationCenter.default.addObserver(
+            forName: .dismissPopover,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.popover.performClose(nil)
+        }
     }
 
     private func updateTitle() {

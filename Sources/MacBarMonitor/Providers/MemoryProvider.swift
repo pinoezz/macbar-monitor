@@ -13,8 +13,14 @@ struct LiveMemoryProvider: MemoryProviding {
         guard let info = source.readMemoryInfo() else {
             return .unavailable("Failed to read memory info")
         }
-        let usedBytes = info.active + info.wired
-        let totalPhysical = info.active + info.inactive + info.wired + info.free
+
+        // Use ProcessInfo for accurate total physical memory
+        // (Mach VM stats pages don't include compressed/speculative pages)
+        let totalPhysical = UInt64(ProcessInfo.processInfo.physicalMemory)
+
+        // Used = active + wired + compressed (matches Activity Monitor's "Memory Used")
+        let usedBytes = info.active + info.wired + info.compressed
+
         guard totalPhysical > 0 else {
             return .unavailable("Zero total physical memory")
         }

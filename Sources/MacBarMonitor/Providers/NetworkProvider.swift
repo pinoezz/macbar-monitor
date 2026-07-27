@@ -11,6 +11,8 @@ final class LiveNetworkProvider: NetworkProviding, Sendable {
         var previousRx: UInt64?
         var previousTx: UInt64?
         var previousTimestamp: Date?
+        var lastRxRate: UInt64 = 0
+        var lastTxRate: UInt64 = 0
     }
 
     init(source: any NetworkSampleSource = LiveNetworkSampleSource()) {
@@ -18,56 +20,55 @@ final class LiveNetworkProvider: NetworkProviding, Sendable {
         self.state = OSAllocatedUnfairLock(initialState: NetworkState())
     }
 
-    func readNetworkUp() async -> MetricResult<NetworkMetric> {
-        readRate(isTx: true)
-    }
-
-    func readNetworkDown() async -> MetricResult<NetworkMetric> {
-        readRate(isTx: false)
-    }
-
-    private func readRate(isTx: Bool) -> MetricResult<NetworkMetric> {
-        guard let counters = source.readNetworkCounters() else {
-            return .unavailable("Failed to read network counters")
-        }
-
-        let current = isTx ? counters.txBytes : counters.rxBytes
+    /// Sample network counters and calculate rates atomically.
+    /// Must be called once per refresh cycle, before readNetworkUp/Down.
+    func sample() {
+        guard let counters = source.readNetworkCounters() else { return }
         let now = Date()
 
-        return state.withLock { s in
-            let previous = isTx ? s.previousTx : s.previousRx
-
-            guard let prev = previous, let prevTime = s.previousTimestamp else {
+        state.withLock { s in
+            guard let prevRx = s.previousRx,
+                  let prevTx = s.previousTx,
+                  let prevTime = s.previousTimestamp else {
+                // First sample — store baseline
                 s.previousRx = counters.rxBytes
                 s.previousTx = counters.txBytes
                 s.previousTimestamp = now
-                return .unavailable("First sample")
+                s.lastRxRate = 0
+                s.lastTxRate = 0
+                return
             }
 
             let elapsed = now.timeIntervalSince(prevTime)
-            guard elapsed > 0 else {
-                return .unavailable("Zero elapsed time")
-            }
+            guard elapsed > 0.1 else { return } // Skip if less than 100ms
 
-            guard current >= prev else {
-                s.previousRx = counters.rxBytes
-                s.previousTx = counters.txBytes
-                s.previousTimestamp = now
-                return .unavailable("Counter reset")
-            }
+            let rxDelta = counters.rxBytes >= prevRx ? counters.rxBytes - prevRx : 0
+            let txDelta = counters.txBytes >= prevTx ? counters.txBytes - prevTx : 0
 
-            let rate = UInt64(Double(current - prev) / elapsed)
+            s.lastRxRate = UInt64(Double(rxDelta) / elapsed)
+            s.lastTxRate = UInt64(Double(txDelta) / elapsed)
 
-            // Update stored values on first call per pair
-            if isTx {
-                s.previousTx = current
-            } else {
-                s.previousRx = current
-            }
+            // Update ALL counters and timestamp atomically
+            s.previousRx = counters.rxBytes
+            s.previousTx = counters.txBytes
             s.previousTimestamp = now
-
-            return .available(NetworkMetric(bytesPerSecond: rate))
         }
+    }
+
+    func readNetworkUp() async -> MetricResult<NetworkMetric> {
+        let rate = state.withLock { $0.lastTxRate }
+        guard state.withLock({ $0.previousTimestamp != nil }) else {
+            return .unavailable("First sample")
+        }
+        return .available(NetworkMetric(bytesPerSecond: rate))
+    }
+
+    func readNetworkDown() async -> MetricResult<NetworkMetric> {
+        let rate = state.withLock { $0.lastRxRate }
+        guard state.withLock({ $0.previousTimestamp != nil }) else {
+            return .unavailable("First sample")
+        }
+        return .available(NetworkMetric(bytesPerSecond: rate))
     }
 }
 
@@ -77,6 +78,7 @@ struct TestableNetworkProvider: NetworkProviding {
     let upResult: MetricResult<NetworkMetric>
     let downResult: MetricResult<NetworkMetric>
 
+    func sample() {}
     func readNetworkUp() async -> MetricResult<NetworkMetric> { upResult }
     func readNetworkDown() async -> MetricResult<NetworkMetric> { downResult }
 }

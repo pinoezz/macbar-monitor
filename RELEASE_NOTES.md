@@ -1,39 +1,49 @@
-# MacBar Monitor - Release v1.0.0
+# MacBar Monitor - Release v2.0.1
 
 A lightweight macOS menu bar system monitor that displays real-time system metrics directly in your menu bar.
 
 ---
 
-## 🚀 Fitur Utama (Features)
+## 🛠️ Bug Fixes & Perbaikan di v2.0.1
 
-- 📊 **CPU Usage**: Pemantauan persentase utilisasi CPU secara real-time.
-- 💾 **Memory (RAM) Usage**: Informasi penggunaan memori RAM (Used / Total).
-- 🔄 **Swap Usage**: Pemantauan penggunaan swap memory.
-- 🌡️ **Thermal State**: Indikator status suhu sistem (Normal, Elevated, Hot, Critical).
+- 🌐 **Fix Network Rate Spikes (GB/s Bug)**: Menambahkan sampling atomic pada counter interface jaringan sehingga perhitungan kalkulasi kecepatan upload & download akurat (KB/s / MB/s) dan tidak melompat ke GB/s.
+- 💾 **Fix Memory Used & Total RAM**: Perhitungan total RAM sekarang akurat sesuai kapasitas fisik Mac (misal: 8 GB), dan memori terpakai menghitung Active + Wired + Compressed RAM seperti pada macOS Activity Monitor.
+- 🔄 **Fix Swap Memory**: Membaca struct data kernel `vm.swapusage` dengan benar melalui POSIX `sysctlbyname`, menampilkan penggunaan memori swap (digunakan / total GB) secara presisi.
+- 🌡️ **Fix Redundant Thermal Badge**: Memperbaiki tampilan Thermal agar tidak ada duplikasi teks di sebelah badge status suhu.
+- 🎓 **Fix Show Tutorial di Settings**: Mengklik tombol "Show Tutorial" di Settings sekarang otomatis menutup popover dan menampilkan window tutorial onboarding.
+
+---
+
+## 🚀 Fitur Utama (v2 Series)
+
+- 📊 **CPU Usage**: Pemantauan persentase utilisasi CPU secara real-time dengan mini progress bar.
+- 💾 **Memory (RAM) Usage**: Informasi penggunaan memori RAM (Used / Total GB) & progress bar.
+- 🔄 **Swap Usage**: Pemantauan penggunaan swap memory (GB).
+- 🌡️ **Thermal State**: Indikator status suhu sistem (Normal, Elevated, Hot, Critical) dengan status badge berwarna.
 - 🔋 **Battery Status**: Persentase daya baterai dan indikator pengisian daya (MacBook).
-- 🌐 **Network Activity**: Kecepatan Upload (↑) dan Download (↓) dalam real-time (KB/s / MB/s).
-- 💽 **Disk Capacity**: Kapasitas ruang penyimpanan disk yang tersisa.
-- ⚙️ **Kustomisasi Menu Bar**: Pilihan metrik utama yang ingin ditampilkan di menu bar.
+- 🌐 **Network Activity**: Kecepatan Upload (↑) dan Download (↓) dalam real-time.
+- 💽 **Disk Capacity**: Kapasitas ruang penyimpanan disk tersisa (GB) & progress bar.
+- ⚙️ **Multi-Metric Menu Bar**: Memilih lebih dari satu metrik untuk ditampilkan langsung di menu bar sekaligus.
+- 🚀 **Launch at Login**: Opsi auto-start saat Mac di-restart melalui `SMAppService` bawaan macOS.
 - ⏱️ **Refresh Rate Configurable**: Pilihan interval pembaruan data (1s, 2s, 5s, 10s).
 - 🎓 **Onboarding Wizard**: Panduan awal 4 halaman untuk pengguna baru.
 - 🔒 **Privacy & Local Only**: Tanpa pengumpulan data, tanpa telemetry, dan tanpa koneksi ke server eksternal.
 
 ---
 
-## 🐛 Known Issues (Bug yang Diketahui di v1)
-
-- ⚠️ **Settings Tidak Bisa Dibuka**: Terjadi kendala di mana menu/halaman Settings tidak dapat dibuka di versi v1 ini.
-- ⚠️ **Auto-Run After Restart**: Aplikasi belum otomatis berjalan kembali secara otomatis setelah Mac di-restart/reboot.
-
----
-
-## 📦 Persyaratan Sistem & Instalasi
+## 📦 Instalasi & Cara Update
 
 - **OS**: macOS 14.0 (Sonoma) atau lebih baru
-- **Build dari Source**:
-  ```bash
-  git clone git@github.com:pinoezz/macbar-monitor.git
-  cd macbar-monitor
-  ./bundle.sh
-  open MacBarMonitor.app
-  ```
+
+### Opsi 1: installer DMG (Rekomendasi)
+1. Download file `MacBarMonitor-v2.0.1.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
+2. Buka DMG lalu drag `MacBarMonitor.app` ke folder `Applications`.
+3. Jika sudah ada versi lama di `Applications`, pilih **Replace** (Timpa). Tidak perlu menghapus manual terlebih dahulu.
+
+### Opsi 2: Build dari Source
+```bash
+git clone git@github.com:pinoezz/macbar-monitor.git
+cd macbar-monitor
+./create-dmg.sh
+open MacBarMonitor-v2.0.1.dmg
+```

@@ -82,6 +82,9 @@ final class MonitorStore: ObservableObject {
 
     private func refresh() async {
         let p = providers
+        // Sample network counters atomically before reading rates
+        p.network.sample()
+
         async let c = p.cpu.readCPU()
         async let m = p.memory.readMemory()
         async let s = p.swap.readSwap()

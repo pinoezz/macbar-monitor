@@ -24,7 +24,7 @@ struct MonitorPopoverView: View {
                 Text("MacBar Monitor")
                     .font(.system(size: 13, weight: .semibold))
                 Spacer()
-                Text("v2.0")
+                Text("v2.0.1")
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
             }
@@ -178,16 +178,25 @@ struct MonitorPopoverView: View {
         Group {
             switch store.snapshot.swap {
             case .available(let m):
-                if let pct = m.utilizationPercent {
+                let usedGB = String(format: "%.1f", Double(m.usedBytes) / 1_073_741_824)
+                let totalGB = String(format: "%.1f", Double(m.totalBytes) / 1_073_741_824)
+                let pct = m.utilizationPercent ?? 0
+                if m.totalBytes > 0 {
                     MetricRowView(
                         icon: "arrow.triangle.swap",
                         label: "Swap",
-                        value: String(format: "%.0f%%", pct),
+                        value: "\(usedGB) / \(totalGB) GB",
                         progress: pct / 100.0,
                         color: colorForPercent(pct)
                     )
                 } else {
-                    MetricRowView(icon: "arrow.triangle.swap", label: "Swap", value: "—", progress: nil, color: .secondary)
+                    MetricRowView(
+                        icon: "arrow.triangle.swap",
+                        label: "Swap",
+                        value: "\(usedGB) GB used",
+                        progress: nil,
+                        color: .secondary
+                    )
                 }
             case .unavailable:
                 MetricRowView(icon: "arrow.triangle.swap", label: "Swap", value: "—", progress: nil, color: .secondary)
@@ -202,7 +211,7 @@ struct MonitorPopoverView: View {
                 MetricRowView(
                     icon: "thermometer.medium",
                     label: "Thermal",
-                    value: state.displayName,
+                    value: "",
                     progress: nil,
                     color: colorForThermal(state),
                     badge: state.displayName,

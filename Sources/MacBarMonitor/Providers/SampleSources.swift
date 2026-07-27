@@ -7,7 +7,7 @@ protocol CPUSampleSource: Sendable {
 }
 
 protocol MemorySampleSource: Sendable {
-    func readMemoryInfo() -> (active: UInt64, inactive: UInt64, wired: UInt64, free: UInt64, pageSize: UInt64)?
+    func readMemoryInfo() -> (active: UInt64, inactive: UInt64, wired: UInt64, free: UInt64, compressed: UInt64, pageSize: UInt64)?
 }
 
 protocol NetworkSampleSource: Sendable {
@@ -42,7 +42,7 @@ struct LiveCPUSampleSource: CPUSampleSource {
 }
 
 struct LiveMemorySampleSource: MemorySampleSource {
-    func readMemoryInfo() -> (active: UInt64, inactive: UInt64, wired: UInt64, free: UInt64, pageSize: UInt64)? {
+    func readMemoryInfo() -> (active: UInt64, inactive: UInt64, wired: UInt64, free: UInt64, compressed: UInt64, pageSize: UInt64)? {
         var size = mach_msg_type_number_t(
             MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size
         )
@@ -58,14 +58,13 @@ struct LiveMemorySampleSource: MemorySampleSource {
             }
         }
         guard result == KERN_SUCCESS else { return nil }
-        let pageSize = UInt64(ProcessInfo.processInfo.activeProcessorCount > 0
-            ? vm_kernel_page_size
-            : 4096)
+        let pageSize = UInt64(vm_kernel_page_size)
         return (
             active: UInt64(data.active_count) * pageSize,
             inactive: UInt64(data.inactive_count) * pageSize,
             wired: UInt64(data.wire_count) * pageSize,
             free: UInt64(data.free_count) * pageSize,
+            compressed: UInt64(data.compressor_page_count) * pageSize,
             pageSize: pageSize
         )
     }

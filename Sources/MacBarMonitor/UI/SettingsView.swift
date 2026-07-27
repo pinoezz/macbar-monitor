@@ -83,7 +83,7 @@ struct SettingsView: View {
                 // Version
                 HStack {
                     Spacer()
-                    Text("MacBar Monitor v2.0.0")
+                    Text("MacBar Monitor v2.0.1")
                         .font(.system(size: 10))
                         .foregroundStyle(.tertiary)
                     Spacer()
@@ -117,8 +117,12 @@ struct SettingsView: View {
     }
 
     private func reopenOnboarding() {
-        guard let delegate = NSApp.delegate as? AppDelegate else { return }
-        delegate.showOnboarding(forced: true)
+        // Dismiss the popover first, then show onboarding after a brief delay
+        NotificationCenter.default.post(name: .dismissPopover, object: nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            guard let delegate = NSApp.delegate as? AppDelegate else { return }
+            delegate.showOnboarding(forced: true)
+        }
     }
 
     private func iconForMetric(_ metric: MetricKey) -> String {

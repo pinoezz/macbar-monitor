@@ -23,6 +23,7 @@ protocol BatteryProviding: Sendable {
 }
 
 protocol NetworkProviding: Sendable {
+    func sample()
     func readNetworkUp() async -> MetricResult<NetworkMetric>
     func readNetworkDown() async -> MetricResult<NetworkMetric>
 }
