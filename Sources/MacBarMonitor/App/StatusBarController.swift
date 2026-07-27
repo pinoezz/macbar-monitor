@@ -1,0 +1,71 @@
+import AppKit
+import Combine
+import SwiftUI
+
+@MainActor
+final class StatusBarController: NSObject {
+    private let statusItem: NSStatusItem
+    private let store: MonitorStore
+    private let popover: NSPopover
+    private var cancellables = Set<AnyCancellable>()
+
+    init(store: MonitorStore) {
+        self.store = store
+        self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        let popover = NSPopover()
+        popover.contentSize = NSSize(width: 320, height: 400)
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(rootView: MonitorPopoverView(store: store))
+        self.popover = popover
+        super.init()
+        setupStatusItem()
+        observeStore()
+    }
+
+    func startMonitoring() {
+        store.startMonitoring()
+    }
+
+    func stopMonitoring() {
+        store.stopMonitoring()
+    }
+
+    private func setupStatusItem() {
+        if let button = statusItem.button {
+            button.image = NSImage(systemSymbolName: "gauge.medium", accessibilityDescription: "MacBarMonitor")
+            button.target = self
+            button.action = #selector(togglePopover)
+        }
+    }
+
+    private func observeStore() {
+        store.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    self?.updateTitle()
+                }
+            }
+            .store(in: &cancellables)
+        updateTitle()
+    }
+
+    private func updateTitle() {
+        let value = store.snapshot.value(for: store.selectedMetric)
+        let label = store.selectedMetric.menuBarLabel
+        statusItem.button?.title = "\(label) \(value)"
+    }
+
+    @objc private func togglePopover() {
+        if popover.isShown {
+            popover.performClose(nil)
+        } else {
+            if let button = statusItem.button {
+                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            }
+        }
+    }
+
+    deinit {
+    }
+}
