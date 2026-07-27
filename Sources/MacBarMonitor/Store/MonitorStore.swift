@@ -3,7 +3,7 @@ import SwiftUI
 @MainActor
 final class MonitorStore: ObservableObject {
     @Published private(set) var snapshot = SystemSnapshot()
-    @Published private(set) var selectedMetric: MetricKey
+    @Published private(set) var selectedMetrics: Set<MetricKey>
 
     let settingsStore: SettingsStore
     private let providers: AllProviders
@@ -15,7 +15,12 @@ final class MonitorStore: ObservableObject {
     ) {
         self.providers = providers
         self.settingsStore = settingsStore
-        self.selectedMetric = settingsStore.selectedMetric
+        self.selectedMetrics = settingsStore.selectedMetrics
+    }
+
+    // Legacy single-metric accessor
+    var selectedMetric: MetricKey {
+        selectedMetrics.first ?? .cpu
     }
 
     func startMonitoring() {
@@ -30,14 +35,37 @@ final class MonitorStore: ObservableObject {
         refreshTask = nil
     }
 
+    func addMetric(_ metric: MetricKey) {
+        selectedMetrics.insert(metric)
+        settingsStore.selectedMetrics = selectedMetrics
+    }
+
+    func removeMetric(_ metric: MetricKey) {
+        // Don't allow removing the last metric
+        guard selectedMetrics.count > 1 else { return }
+        selectedMetrics.remove(metric)
+        settingsStore.selectedMetrics = selectedMetrics
+    }
+
     func selectMetric(_ metric: MetricKey) {
-        selectedMetric = metric
-        settingsStore.selectedMetric = metric
+        selectedMetrics = [metric]
+        settingsStore.selectedMetrics = selectedMetrics
     }
 
     func setRefreshInterval(_ interval: TimeInterval) {
         settingsStore.refreshInterval = interval
         scheduleRefresh()
+    }
+
+    /// Build the concatenated menu bar display text for all selected metrics.
+    func menuBarDisplayText() -> String {
+        let orderedKeys = MetricKey.allCases.filter { selectedMetrics.contains($0) }
+        let parts = orderedKeys.map { key -> String in
+            let label = key.menuBarLabel
+            let value = snapshot.value(for: key)
+            return "\(label) \(value)"
+        }
+        return parts.joined(separator: "  ")
     }
 
     private func scheduleRefresh() {

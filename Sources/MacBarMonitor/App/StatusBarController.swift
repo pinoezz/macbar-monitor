@@ -13,7 +13,7 @@ final class StatusBarController: NSObject {
         self.store = store
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         let popover = NSPopover()
-        popover.contentSize = NSSize(width: 320, height: 400)
+        popover.contentSize = NSSize(width: 300, height: 420)
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(rootView: MonitorPopoverView(store: store))
         self.popover = popover
@@ -51,9 +51,7 @@ final class StatusBarController: NSObject {
     }
 
     private func updateTitle() {
-        let value = store.snapshot.value(for: store.selectedMetric)
-        let label = store.selectedMetric.menuBarLabel
-        statusItem.button?.title = "\(label) \(value)"
+        statusItem.button?.title = store.menuBarDisplayText()
     }
 
     @objc private func togglePopover() {

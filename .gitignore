@@ -3,3 +3,5 @@
 .codegraph
 .omo/
 MacBarMonitor.app
+*.dmg
+dmg_staging/
