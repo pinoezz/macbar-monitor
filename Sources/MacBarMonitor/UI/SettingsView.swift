@@ -83,7 +83,7 @@ struct SettingsView: View {
                 // Version
                 HStack {
                     Spacer()
-                    Text("MacBar Monitor v2.0.3")
+                    Text("MacBar Monitor v2.0.4")
                         .font(.system(size: 10))
                         .foregroundStyle(.tertiary)
                     Spacer()
@@ -117,11 +117,10 @@ struct SettingsView: View {
     }
 
     private func reopenOnboarding() {
-        // Dismiss the popover first, then show onboarding after a brief delay
+        // Dismiss the popover first, then show onboarding via notification
         NotificationCenter.default.post(name: .dismissPopover, object: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            guard let delegate = NSApp.delegate as? AppDelegate else { return }
-            delegate.showOnboarding(forced: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            NotificationCenter.default.post(name: .showOnboarding, object: nil)
         }
     }
 

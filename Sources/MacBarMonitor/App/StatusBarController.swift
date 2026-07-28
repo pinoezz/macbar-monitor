@@ -4,6 +4,7 @@ import SwiftUI
 
 extension Notification.Name {
     static let dismissPopover = Notification.Name("dismissPopover")
+    static let showOnboarding = Notification.Name("showOnboarding")
 }
 
 @MainActor

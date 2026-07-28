@@ -2,6 +2,19 @@
 
 A lightweight macOS menu bar system monitor that displays real-time system metrics directly in your menu bar.
 
+## Screenshots
+
+### Menu Bar
+![Menu Bar](assets/menubar.png)
+
+### Popover Dashboard
+![Popover](assets/popover.png)
+
+### Settings
+![Settings](assets/settings.png)
+
+---
+
 ## Fitur
 
 - **CPU Usage**: Real-time CPU utilization percentage

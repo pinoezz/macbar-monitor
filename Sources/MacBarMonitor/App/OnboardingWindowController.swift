@@ -9,9 +9,9 @@ final class OnboardingWindowController: NSWindowController, NSWindowDelegate {
     init(settingsStore: SettingsStore) {
         self.settingsStore = settingsStore
 
-        let window = NSPanel(
+        let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 420, height: 360),
-            styleMask: [.titled, .nonactivatingPanel],
+            styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
         )
@@ -23,12 +23,7 @@ final class OnboardingWindowController: NSWindowController, NSWindowDelegate {
 
         super.init(window: window)
 
-        let hostingController = NSHostingController(
-            rootView: OnboardingView { [weak self] in
-                self?.completeOnboarding()
-            }
-        )
-        window.contentViewController = hostingController
+        window.contentViewController = makeHostingController()
         window.delegate = self
     }
 
@@ -41,9 +36,13 @@ final class OnboardingWindowController: NSWindowController, NSWindowDelegate {
         guard let window = window else { return }
 
         if forced || !settingsStore.hasCompletedOnboarding {
+            // Re-create content view controller to ensure fresh state
+            window.contentViewController = makeHostingController()
+
             NSApp.setActivationPolicy(.regular)
+            window.center()
             window.makeKeyAndOrderFront(nil)
-            NSApp.activate()
+            NSApp.activate(ignoringOtherApps: true)
             retainedSelf = self
         }
     }
@@ -61,5 +60,13 @@ final class OnboardingWindowController: NSWindowController, NSWindowDelegate {
         }
         NSApp.setActivationPolicy(.accessory)
         retainedSelf = nil
+    }
+
+    private func makeHostingController() -> NSHostingController<OnboardingView> {
+        NSHostingController(
+            rootView: OnboardingView { [weak self] in
+                self?.completeOnboarding()
+            }
+        )
     }
 }

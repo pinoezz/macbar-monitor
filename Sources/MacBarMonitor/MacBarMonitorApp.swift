@@ -23,6 +23,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusBarController = StatusBarController(store: store)
         statusBarController?.startMonitoring()
 
+        // Listen for "Show Tutorial" requests from SettingsView
+        NotificationCenter.default.addObserver(
+            forName: .showOnboarding,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.showOnboarding(forced: true)
+            }
+        }
+
         showOnboardingIfNeeded()
     }
 

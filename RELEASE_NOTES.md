@@ -1,14 +1,21 @@
-# MacBar Monitor - Release v2.0.3
+# MacBar Monitor - Release v2.0.4
 
 A lightweight macOS menu bar system monitor that displays real-time system metrics directly in your menu bar.
 
 ---
 
+## 🛠️ Bug Fixes & Perbaikan di v2.0.4
+
+- 🎓 **Fix Show Tutorial Blank Window**: Memperbaiki bug saat klik "Show Tutorial" di Settings — window muncul kosong/blank. Sekarang menggunakan `NSWindow` dengan `styleMask` yang benar dan membuat ulang content view setiap kali dipanggil.
+- 📸 **README Screenshots**: Menambahkan screenshot menu bar, popover dashboard, dan settings ke README.md.
+
+---
+
 ## 🛠️ Bug Fixes & Perbaikan di v2.0.3
 
-- 📐 **Fix Progress Bar Alignment**: Memperbaiki tampilan progress bar (CPU, Memory, Swap, Battery, Disk) agar rata dan sejajar secara konsisten menggunakan layout kolom fixed-width.
+- 📐 **Fix Progress Bar Alignment**: Memperbaiki tampilan progress bar agar rata dan sejajar secara konsisten menggunakan layout kolom fixed-width.
 - 🔧 **Fix Row Alignment (Upload/Download)**: Menambahkan placeholder pada row tanpa progress bar agar kolom value tetap sejajar.
-- 📏 **Fix "Zero bytes/s" di Menu Bar**: Mengganti `ByteCountFormatter` dengan custom formatter yang lebih ringkas — sekarang menampilkan `0 B/s` alih-alih `Zero bytes/s`.
+- 📏 **Fix "Zero bytes/s" di Menu Bar**: Mengganti `ByteCountFormatter` dengan custom formatter — menampilkan `0 B/s` alih-alih `Zero bytes/s`.
 
 ---
 
@@ -44,7 +51,7 @@ A lightweight macOS menu bar system monitor that displays real-time system metri
 - **OS**: macOS 14.0 (Sonoma) atau lebih baru
 
 ### Opsi 1: installer DMG (Rekomendasi)
-1. Download file `MacBarMonitor-v2.0.3.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
+1. Download file `MacBarMonitor-v2.0.4.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
 2. Buka DMG lalu drag `MacBarMonitor.app` ke folder `Applications`.
 3. Jika sudah ada versi lama di `Applications`, pilih **Replace** (Timpa). Tidak perlu menghapus manual terlebih dahulu.
 
@@ -53,5 +60,5 @@ A lightweight macOS menu bar system monitor that displays real-time system metri
 git clone git@github.com:pinoezz/macbar-monitor.git
 cd macbar-monitor
 ./create-dmg.sh
-open MacBarMonitor-v2.0.3.dmg
+open MacBarMonitor-v2.0.4.dmg
 ```
