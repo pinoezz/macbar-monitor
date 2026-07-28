@@ -25,14 +25,37 @@ enum MetricCalculations {
     // MARK: - Byte Formatting
 
     static func formatBytes(_ bytes: UInt64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useGB, .useMB, .useKB, .useBytes]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: Int64(bytes))
+        let kb = 1_000.0
+        let mb = 1_000_000.0
+        let gb = 1_000_000_000.0
+        let value = Double(bytes)
+
+        if value >= gb {
+            return String(format: "%.1f GB", value / gb)
+        } else if value >= mb {
+            return String(format: "%.1f MB", value / mb)
+        } else if value >= kb {
+            return String(format: "%.0f KB", value / kb)
+        } else {
+            return "\(bytes) B"
+        }
     }
 
     static func formatBytesPerSecond(_ bytesPerSecond: UInt64) -> String {
-        formatBytes(bytesPerSecond) + "/s"
+        let kb = 1_000.0
+        let mb = 1_000_000.0
+        let gb = 1_000_000_000.0
+        let value = Double(bytesPerSecond)
+
+        if value >= gb {
+            return String(format: "%.1f GB/s", value / gb)
+        } else if value >= mb {
+            return String(format: "%.1f MB/s", value / mb)
+        } else if value >= kb {
+            return String(format: "%.0f KB/s", value / kb)
+        } else {
+            return "\(bytesPerSecond) B/s"
+        }
     }
 
     // MARK: - Elapsed Time Guard

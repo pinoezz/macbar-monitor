@@ -4,7 +4,7 @@ set -euo pipefail
 APP_NAME="MacBarMonitor"
 BUILD_DIR="MacBarMonitor.app"
 RELEASE_BINARY=".build/release/MacBarMonitor"
-DMG_NAME="MacBarMonitor-v2.0.2.dmg"
+DMG_NAME="MacBarMonitor-v2.0.3.dmg"
 DMG_VOLUME_NAME="MacBar Monitor"
 DMG_STAGING="dmg_staging"
 
