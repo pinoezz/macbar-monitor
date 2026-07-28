@@ -15,7 +15,7 @@ protocol SwapProviding: Sendable {
 }
 
 protocol ThermalProviding: Sendable {
-    func readThermal() async -> MetricResult<ThermalState>
+    func readThermal() async -> MetricResult<ThermalReading>
 }
 
 protocol BatteryProviding: Sendable {

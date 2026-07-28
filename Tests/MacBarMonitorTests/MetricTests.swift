@@ -3,6 +3,96 @@ import XCTest
 
 final class MetricTests: XCTestCase {
 
+    // MARK: - ThermalReading Tests
+
+    func testThermalReadingDisplayTemperatureWithValidTemp() {
+        // Given
+        let reading = ThermalReading(state: .fair, temperatureCelsius: 45.2)
+
+        // When
+        let display = reading.displayTemperature
+
+        // Then
+        XCTAssertEqual(display, "45°C")
+    }
+
+    func testThermalReadingDisplayTemperatureWithWholeNumber() {
+        // Given
+        let reading = ThermalReading(state: .nominal, temperatureCelsius: 60.0)
+
+        // When
+        let display = reading.displayTemperature
+
+        // Then
+        XCTAssertEqual(display, "60°C")
+    }
+
+    func testThermalReadingDisplayTemperatureWithNilTemp() {
+        // Given
+        let reading = ThermalReading(state: .nominal, temperatureCelsius: nil)
+
+        // When
+        let display = reading.displayTemperature
+
+        // Then
+        XCTAssertNil(display)
+    }
+
+    func testThermalReadingDisplayValueWithTemp() {
+        // Given
+        let reading = ThermalReading(state: .critical, temperatureCelsius: 85.7)
+
+        // When
+        let value = reading.displayValue
+
+        // Then
+        XCTAssertEqual(value, "86°C")
+    }
+
+    func testThermalReadingDisplayValueWithoutTemp() {
+        // Given
+        let reading = ThermalReading(state: .serious, temperatureCelsius: nil)
+
+        // When
+        let value = reading.displayValue
+
+        // Then
+        XCTAssertEqual(value, "Hot")
+    }
+
+    func testThermalReadingDisplayValueAllStatesWithoutTemp() {
+        // Given
+        let nominal = ThermalReading(state: .nominal, temperatureCelsius: nil)
+        let fair = ThermalReading(state: .fair, temperatureCelsius: nil)
+        let serious = ThermalReading(state: .serious, temperatureCelsius: nil)
+        let critical = ThermalReading(state: .critical, temperatureCelsius: nil)
+
+        // Then
+        XCTAssertEqual(nominal.displayValue, "Normal")
+        XCTAssertEqual(fair.displayValue, "Elevated")
+        XCTAssertEqual(serious.displayValue, "Hot")
+        XCTAssertEqual(critical.displayValue, "Critical")
+    }
+
+    func testTestableThermalProviderReturnsCorrectReading() async {
+        // Given
+        let expected = ThermalReading(state: .nominal, temperatureCelsius: 42.0)
+        let provider = TestableThermalProvider(result: .available(expected))
+
+        // When
+        let result = await provider.readThermal()
+
+        // Then
+        switch result {
+        case .available(let reading):
+            XCTAssertEqual(reading.state, .nominal)
+            XCTAssertEqual(reading.temperatureCelsius, 42.0)
+            XCTAssertEqual(reading.displayTemperature, "42°C")
+        case .unavailable:
+            XCTFail("Expected available result")
+        }
+    }
+
     // MARK: - calculateRate Tests
 
     func testCalculateRateWithValidInputs() {

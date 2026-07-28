@@ -5,3 +5,4 @@
 MacBarMonitor.app
 *.dmg
 dmg_staging/
+.slim/deepwork/

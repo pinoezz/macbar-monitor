@@ -20,7 +20,7 @@ A lightweight macOS menu bar system monitor that displays real-time system metri
 - **CPU Usage**: Real-time CPU utilization percentage
 - **Memory Usage**: RAM usage with used/total bytes
 - **Swap Usage**: Swap memory utilization
-- **Thermal State**: System thermal condition (Normal/Elevated/Hot/Critical)
+- **Thermal State**: System thermal condition (Normal/Elevated/Hot/Critical) with numeric temperature (°C) on Apple Silicon
 - **Battery Status**: Charge percentage and charging indicator
 - **Network Activity**: Upload and download speeds (bytes/sec), local counters only
 - **Disk Space**: Free disk capacity
@@ -88,7 +88,7 @@ Klik **Next** untuk berpindah halaman, **Back** untuk kembali, dan **Get Started
 | CPU | `CPU 45%` | Persentase utilisasi prosesor |
 | Memory | `RAM 8.2 GB` | RAM terpakai |
 | Swap | `Swap 25%` | Persentase swap |
-| Thermal | `Temp Normal` | Status termal (Normal/Elevated/Hot/Critical) |
+| Thermal | `52°C` | Temperatur numerik (°C) di Apple Silicon, fallback ke status termal |
 | Battery | `Bat ⚡87%` | Level charge (⚡ saat charging) |
 | Upload | `↑ 1.5 MB/s` | Kecepatan upload lokal |
 | Download | `↓ 3.2 MB/s` | Kecepatan download lokal |
@@ -157,7 +157,7 @@ Aplikasi membaca metrik menggunakan API standar macOS:
 - **CPU**: `host_statistics` (Mach kernel)
 - **Memory**: `mach_host_statistics` (Mach kernel)
 - **Swap**: `sysctl` (POSIX)
-- **Thermal**: `ProcessInfo.ThermalState` (Foundation)
+- **Thermal**: `ProcessInfo.ThermalState` (Foundation) + IOKit HID private API untuk suhu numerik (°C) di Apple Silicon
 - **Battery**: IOKit power management
 - **Network**: `ifaddrs` (POSIX), counter lokal
 - **Disk**: `URL.resourceValues` (Foundation) untuk kapasitas
@@ -165,10 +165,6 @@ Aplikasi membaca metrik menggunakan API standar macOS:
 Semua data hanya berada di memori dan tidak pernah disimpan ke disk.
 
 ## Keterbatasan
-
-### Suhu Numerik (Celsius)
-
-Aplikasi **tidak** menampilkan suhu numerik (misal: 72°C). Apple tidak menyediakan API publik untuk membaca sensor suhu CPU/GPU. Yang tersedia hanya `ProcessInfo.ThermalState` (enum: Normal/Elevated/Hot/Critical), informasi termal publik satu-satunya dari Apple.
 
 ### Kecepatan Disk (Read/Write)
 
@@ -203,7 +199,8 @@ MacBarMonitor/
 │   ├── CPUProvider.swift                  # CPU utilization via Mach API
 │   ├── MemoryProvider.swift               # RAM usage via Mach API
 │   ├── SwapProvider.swift                 # Swap usage via sysctl
-│   ├── ThermalProvider.swift              # Thermal state via Foundation
+│   ├── ThermalProvider.swift              # Thermal state via Foundation + IOKit HID
+│   ├── IOKitHID.swift                     # IOKit HID private API wrapper (suhu CPU/GPU)
 │   ├── BatteryProvider.swift              # Battery status via IOKit
 │   ├── NetworkProvider.swift              # Network speeds via ifaddrs
 │   └── DiskProvider.swift                 # Disk capacity via Foundation

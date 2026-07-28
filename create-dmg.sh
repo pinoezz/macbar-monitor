@@ -4,7 +4,8 @@ set -euo pipefail
 APP_NAME="MacBarMonitor"
 BUILD_DIR="MacBarMonitor.app"
 RELEASE_BINARY=".build/release/MacBarMonitor"
-DMG_NAME="MacBarMonitor-v2.0.4.dmg"
+VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "Sources/MacBarMonitor/Info.plist")
+DMG_NAME="MacBarMonitor-v${VERSION}.dmg"
 DMG_VOLUME_NAME="MacBar Monitor"
 DMG_STAGING="dmg_staging"
 

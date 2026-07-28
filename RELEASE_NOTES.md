@@ -1,4 +1,27 @@
-# MacBar Monitor - Release v2.0.4
+# MacBar Monitor - Release v2.1.0
+
+A lightweight macOS menu bar system monitor that displays real-time system metrics directly in your menu bar.
+
+---
+
+## 🌡️ Suhu Numerik (Temperature Display)
+
+- **Temperature Reading**: Menampilkan suhu CPU/chip dalam °C di menu bar (Apple Silicon M-series). Menggantikan tampilan "Normal"/"Elevated" dengan angka suhu real-time seperti `52°C`.
+- **IOKit HID Private API**: Mengakses sensor suhu bawaan Apple Silicon melalui IOHIDEventSystemClient — API yang sama dengan iStat Menus, TG Pro, dan ThermalBar.
+- **Multi-Sensor Averaging**: Membaca rata-rata dari ~52 sensor valid (PMU tdie, SOC, GPU, ANE, NAND, dll) untuk akurasi lebih baik.
+- **3-Second Cache**: Mencegah pembacaan berulang dengan caching 3 detik agar performa tetap ringan.
+
+### Teknis
+
+- Protocol-based architecture: `IOKitHIDProviding` protocol dengan `LiveIOKitHID` (live) + `TestableIOKitHID` (testing)
+- `ThermalReading` menyimpan `temperatureCelsius: Double?` — nil saat gagal baca atau macOS < 12
+- `displayValue` menampilkan suhu (°C) jika tersedia, fallback ke nama status termal
+- `dlopen`/`dlsym` untuk akses private API — tidak perlu link static ke IOKit private headers
+- `os_log` debug logging untuk diagnostik
+
+---
+
+## 🛠️ Bug Fixes & Perbaikan di v2.0.4
 
 A lightweight macOS menu bar system monitor that displays real-time system metrics directly in your menu bar.
 
@@ -51,7 +74,7 @@ A lightweight macOS menu bar system monitor that displays real-time system metri
 - **OS**: macOS 14.0 (Sonoma) atau lebih baru
 
 ### Opsi 1: installer DMG (Rekomendasi)
-1. Download file `MacBarMonitor-v2.0.4.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
+1. Download file `MacBarMonitor-v2.1.0.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
 2. Buka DMG lalu drag `MacBarMonitor.app` ke folder `Applications`.
 3. Jika sudah ada versi lama di `Applications`, pilih **Replace** (Timpa). Tidak perlu menghapus manual terlebih dahulu.
 

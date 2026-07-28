@@ -207,15 +207,15 @@ struct MonitorPopoverView: View {
     private var thermalRow: some View {
         Group {
             switch store.snapshot.thermal {
-            case .available(let state):
+            case .available(let reading):
                 MetricRowView(
                     icon: "thermometer.medium",
                     label: "Thermal",
-                    value: "",
+                    value: reading.displayTemperature ?? "",
                     progress: nil,
-                    color: colorForThermal(state),
-                    badge: state.displayName,
-                    badgeColor: colorForThermal(state)
+                    color: colorForThermal(reading.state),
+                    badge: reading.state.displayName,
+                    badgeColor: colorForThermal(reading.state)
                 )
             case .unavailable:
                 MetricRowView(icon: "thermometer.medium", label: "Thermal", value: "—", progress: nil, color: .secondary)

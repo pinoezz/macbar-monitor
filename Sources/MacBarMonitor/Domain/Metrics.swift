@@ -57,13 +57,6 @@ enum MetricResult<Value: Sendable>: Sendable {
         if case .available = self { return true }
         return false
     }
-
-    var displayValue: String? {
-        if case .available(let v) = self {
-            return "\(v)"
-        }
-        return nil
-    }
 }
 
 // MARK: - Typed Metric Values
@@ -106,6 +99,21 @@ enum ThermalState: Sendable, CaseIterable {
     }
 }
 
+struct ThermalReading: Sendable {
+    let state: ThermalState
+    let temperatureCelsius: Double?
+
+    var displayTemperature: String? {
+        guard let temp = temperatureCelsius else { return nil }
+        return String(format: "%.0f°C", temp)
+    }
+
+    var displayValue: String {
+        if let temp = displayTemperature { return temp }
+        return state.displayName
+    }
+}
+
 struct BatteryMetric: Sendable {
     let chargePercent: Double
     let isCharging: Bool
@@ -137,7 +145,7 @@ struct SystemSnapshot: Sendable {
     let cpu: MetricResult<CPUMetric>
     let memory: MetricResult<MemoryMetric>
     let swap: MetricResult<SwapMetric>
-    let thermal: MetricResult<ThermalState>
+    let thermal: MetricResult<ThermalReading>
     let battery: MetricResult<BatteryMetric>
     let networkUp: MetricResult<NetworkMetric>
     let networkDown: MetricResult<NetworkMetric>
@@ -150,7 +158,7 @@ struct SystemSnapshot: Sendable {
         cpu: MetricResult<CPUMetric> = .unavailable(nil),
         memory: MetricResult<MemoryMetric> = .unavailable(nil),
         swap: MetricResult<SwapMetric> = .unavailable(nil),
-        thermal: MetricResult<ThermalState> = .unavailable(nil),
+        thermal: MetricResult<ThermalReading> = .unavailable(nil),
         battery: MetricResult<BatteryMetric> = .unavailable(nil),
         networkUp: MetricResult<NetworkMetric> = .unavailable(nil),
         networkDown: MetricResult<NetworkMetric> = .unavailable(nil),
@@ -227,10 +235,10 @@ struct SystemSnapshot: Sendable {
         }
     }
 
-    private func formatThermal(_ result: MetricResult<ThermalState>) -> String {
+    private func formatThermal(_ result: MetricResult<ThermalReading>) -> String {
         switch result {
-        case .available(let s):
-            return s.displayName
+        case .available(let r):
+            return r.displayValue
         case .unavailable:
             return "—"
         }
