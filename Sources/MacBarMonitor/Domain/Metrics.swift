@@ -247,8 +247,7 @@ struct SystemSnapshot: Sendable {
     private func formatBattery(_ result: MetricResult<BatteryMetric>) -> String {
         switch result {
         case .available(let m):
-            let icon = m.isCharging ? "⚡" : ""
-            return "\(icon)\(Int(m.chargePercent))%"
+            return "\(Int(m.chargePercent))%"
         case .unavailable:
             return "—"
         }

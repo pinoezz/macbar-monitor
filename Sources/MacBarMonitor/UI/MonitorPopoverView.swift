@@ -227,12 +227,11 @@ struct MonitorPopoverView: View {
         Group {
             switch store.snapshot.battery {
             case .available(let m):
-                let icon = m.isCharging ? "battery.100.bolt" : batteryIcon(for: m.chargePercent)
-                let chargingText = m.isCharging ? " ⚡" : ""
+                let icon = m.isCharging ? "battery.100" : batteryIcon(for: m.chargePercent)
                 MetricRowView(
                     icon: icon,
                     label: "Battery",
-                    value: "\(Int(m.chargePercent))%\(chargingText)",
+                    value: "\(Int(m.chargePercent))%",
                     progress: m.chargePercent / 100.0,
                     color: colorForBattery(m.chargePercent)
                 )
