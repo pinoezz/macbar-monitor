@@ -24,7 +24,7 @@ struct MonitorPopoverView: View {
                 Text("MacBar Monitor")
                     .font(.system(size: 13, weight: .semibold))
                 Spacer()
-                Text("v2.0.3")
+                Text("v2.0.4")
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
             }
