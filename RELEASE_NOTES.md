@@ -1,6 +1,13 @@
-# MacBar Monitor - Release v2.0.1
+# MacBar Monitor - Release v2.0.2
 
 A lightweight macOS menu bar system monitor that displays real-time system metrics directly in your menu bar.
+
+---
+
+## 🛠️ Bug Fixes & Perbaikan di v2.0.2
+
+- 📐 **Fix Progress Bar Alignment**: Memperbaiki tampilan progress bar (CPU, Memory, Swap, Battery, Disk) agar rata dan sejajar secara konsisten. Menggunakan layout kolom fixed-width (Icon 16pt | Label 70pt | Bar 80pt | Value 80pt) sehingga semua bar mulai dan berakhir di posisi yang sama.
+- 🔧 **Fix Row Alignment untuk Upload/Download**: Menambahkan placeholder kosong pada row tanpa progress bar agar kolom value tetap sejajar dengan row lainnya.
 
 ---
 
@@ -36,7 +43,7 @@ A lightweight macOS menu bar system monitor that displays real-time system metri
 - **OS**: macOS 14.0 (Sonoma) atau lebih baru
 
 ### Opsi 1: installer DMG (Rekomendasi)
-1. Download file `MacBarMonitor-v2.0.1.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
+1. Download file `MacBarMonitor-v2.0.2.dmg` (atau buat sendiri dengan `./create-dmg.sh`).
 2. Buka DMG lalu drag `MacBarMonitor.app` ke folder `Applications`.
 3. Jika sudah ada versi lama di `Applications`, pilih **Replace** (Timpa). Tidak perlu menghapus manual terlebih dahulu.
 
@@ -45,5 +52,5 @@ A lightweight macOS menu bar system monitor that displays real-time system metri
 git clone git@github.com:pinoezz/macbar-monitor.git
 cd macbar-monitor
 ./create-dmg.sh
-open MacBarMonitor-v2.0.1.dmg
+open MacBarMonitor-v2.0.2.dmg
 ```

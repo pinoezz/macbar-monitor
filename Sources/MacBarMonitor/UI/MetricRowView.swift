@@ -11,21 +11,19 @@ struct MetricRowView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            // Icon
+            // Icon - fixed width column
             Image(systemName: icon)
                 .font(.system(size: 11))
                 .foregroundStyle(color)
                 .frame(width: 16, alignment: .center)
 
-            // Label
+            // Label - fixed width column
             Text(label)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.primary)
-                .frame(width: 60, alignment: .leading)
+                .frame(width: 70, alignment: .leading)
 
-            Spacer()
-
-            // Badge (for thermal)
+            // Badge / Progress bar - fixed width column
             if let badge = badge, let badgeColor = badgeColor {
                 Text(badge)
                     .font(.system(size: 10, weight: .medium))
@@ -36,6 +34,7 @@ struct MetricRowView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(badgeColor)
                     )
+                    .frame(width: 80, alignment: .center)
             } else if let progress = progress {
                 // Progress bar
                 GeometryReader { geometry in
@@ -50,14 +49,18 @@ struct MetricRowView: View {
                             .animation(.easeInOut(duration: 0.3), value: progress)
                     }
                 }
-                .frame(width: 60, height: 6)
+                .frame(width: 80, height: 6)
+            } else {
+                // Empty placeholder to maintain alignment (e.g. Upload/Download)
+                Spacer()
+                    .frame(width: 80)
             }
 
-            // Value text
+            // Value text - fixed width column, right aligned
             Text(value)
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(.primary)
-                .frame(minWidth: 60, alignment: .trailing)
+                .frame(width: 80, alignment: .trailing)
                 .lineLimit(1)
         }
         .padding(.horizontal, 4)
