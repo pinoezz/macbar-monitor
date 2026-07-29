@@ -83,7 +83,7 @@ struct SettingsView: View {
                 // Version
                 HStack {
                     Spacer()
-                    Text("MacBar Monitor v2.0.4")
+                    Text("MacBar Monitor v2.2.1")
                         .font(.system(size: 10))
                         .foregroundStyle(.tertiary)
                     Spacer()

@@ -68,6 +68,14 @@ final class MonitorStore: ObservableObject {
         return parts.joined(separator: "  ")
     }
 
+    /// Build structured display data (label + value pairs) for the stacked status bar view.
+    func menuBarDisplayData() -> [(label: String, value: String)] {
+        let orderedKeys = MetricKey.allCases.filter { selectedMetrics.contains($0) }
+        return orderedKeys.map { key in
+            (label: key.menuBarLabel, value: snapshot.value(for: key))
+        }
+    }
+
     private func scheduleRefresh() {
         refreshTask?.cancel()
         let interval = settingsStore.refreshInterval

@@ -13,6 +13,7 @@ final class StatusBarController: NSObject {
     private let store: MonitorStore
     private let popover: NSPopover
     private var cancellables = Set<AnyCancellable>()
+    private var statusBarView: StatusBarView?
 
     init(store: MonitorStore) {
         self.store = store
@@ -37,11 +38,14 @@ final class StatusBarController: NSObject {
     }
 
     private func setupStatusItem() {
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "gauge.medium", accessibilityDescription: "MacBarMonitor")
-            button.target = self
-            button.action = #selector(togglePopover)
-        }
+        let barView = StatusBarView()
+        barView.onTogglePopover = { [weak self] in self?.togglePopover() }
+        self.statusBarView = barView
+
+        // Use KVC to set the view on the status item (avoids deprecated button.image for custom view)
+        statusItem.setValue(barView, forKey: "view")
+
+        updateContent()
     }
 
     private func observeStore() {
@@ -49,11 +53,10 @@ final class StatusBarController: NSObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    self?.updateTitle()
+                    self?.updateContent()
                 }
             }
             .store(in: &cancellables)
-        updateTitle()
     }
 
     private func observeDismissNotification() {
@@ -66,16 +69,18 @@ final class StatusBarController: NSObject {
         }
     }
 
-    private func updateTitle() {
-        statusItem.button?.title = store.menuBarDisplayText()
+    private func updateContent() {
+        let metrics = store.menuBarDisplayData()
+        statusBarView?.update(with: metrics)
     }
 
     @objc private func togglePopover() {
         if popover.isShown {
             popover.performClose(nil)
         } else {
-            if let button = statusItem.button {
-                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            // Position the popover relative to the status bar view
+            if let statusView = statusItem.value(forKey: "view") as? NSView {
+                popover.show(relativeTo: statusView.bounds, of: statusView, preferredEdge: .minY)
             }
         }
     }
